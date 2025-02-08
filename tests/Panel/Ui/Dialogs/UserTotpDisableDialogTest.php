@@ -2,27 +2,22 @@
 
 namespace Kirby\Panel\Ui\Dialogs;
 
-use Kirby\Cms\App;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\PermissionException;
-use Kirby\Filesystem\Dir;
-use Kirby\TestCase;
+use Kirby\Panel\Ui\TestCase;
 use Kirby\Toolkit\Totp;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @coversDefaultClass \Kirby\Panel\Ui\Dialogs\UserTotpDisableDialog
- * @covers ::__construct
- */
+#[CoversClass(UserTotpDisableDialog::class)]
 class UserTotpDisableDialogTest extends TestCase
 {
 	public const TMP = KIRBY_TMP_DIR . '/Panel.Ui.Dialogs.UserTotpDisableDialog';
 
 	protected function setUp(): void
 	{
-		$this->app = new App([
-			'roots' => [
-				'index' => static::TMP,
-			],
+		parent::setUp();
+
+		$this->app = $this->app->clone([
 			'users' => [
 				[
 					'id'    => 'test',
@@ -34,35 +29,16 @@ class UserTotpDisableDialogTest extends TestCase
 					'email' => 'homer@simpson.com',
 				]
 			],
-			'user' => 'test@getkirby.com'
 		]);
-
-		Dir::make(static::TMP);
 	}
 
-	public function tearDown(): void
-	{
-		// clear session file first
-		$this->app->session()->destroy();
-
-		Dir::remove(static::TMP);
-
-		// clear fake json requests
-		$_GET = [];
-	}
-
-	/**
-	 * @covers ::for
-	 */
 	public function testFor(): void
 	{
 		$dialog = UserTotpDisableDialog::for('homer');
+		$this->assertInstanceOf(UserTotpDisableDialog::class, $dialog);
 		$this->assertSame('homer@simpson.com', $dialog->user->email());
 	}
 
-	/**
-	 * @covers ::render
-	 */
 	public function testRender(): void
 	{
 		// current admin user for themselves
@@ -82,9 +58,6 @@ class UserTotpDisableDialogTest extends TestCase
 		$this->assertSame('k-form-dialog', $state['component']);
 	}
 
-	/**
-	 * @covers ::submit
-	 */
 	public function testSubmit(): void
 	{
 		$user     = $this->app->user();
@@ -103,9 +76,6 @@ class UserTotpDisableDialogTest extends TestCase
 		$this->assertIsString($state['message']);
 	}
 
-	/**
-	 * @covers ::submit
-	 */
 	public function testSubmitWrongPassword(): void
 	{
 		$this->expectException(InvalidArgumentException::class);
@@ -121,9 +91,6 @@ class UserTotpDisableDialogTest extends TestCase
 		$dialog->submit();
 	}
 
-	/**
-	 * @covers ::submit
-	 */
 	public function testSubmitNonAdminAnotherUser(): void
 	{
 		$this->expectException(PermissionException::class);

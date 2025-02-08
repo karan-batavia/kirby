@@ -2,6 +2,7 @@
 
 namespace Kirby\Panel\Ui\Dialogs;
 
+use Kirby\Cms\App;
 use Kirby\Cms\Page;
 use Kirby\Cms\PageRules;
 use Kirby\Panel\Field;
@@ -25,8 +26,10 @@ class PageChangeTitleDialog extends FormDialog
 	public function __construct(
 		public Page $page
 	) {
-		$permissions = $page->permissions();
-		$select      = $this->request->get('select', 'title');
+		$this->kirby   = App::instance();
+		$this->request = $this->kirby->request();
+		$permissions   = $page->permissions();
+		$select        = $this->request->get('select', 'title');
 
 		parent::__construct(
 			fields: [
@@ -74,7 +77,7 @@ class PageChangeTitleDialog extends FormDialog
 		return $path;
 	}
 
-	public function submit(): array
+	public function submit(): array|true
 	{
 		$title = trim($this->request->get('title', ''));
 		$slug  = trim($this->request->get('slug', ''));
@@ -98,7 +101,7 @@ class PageChangeTitleDialog extends FormDialog
 
 		// the page title changed
 		if ($this->page->title()->value() !== $title) {
-			$this->page->changeTitle($title);
+			$this->page = $this->page->changeTitle($title);
 			$response['event'][] = 'page.changeTitle';
 		}
 
@@ -106,9 +109,9 @@ class PageChangeTitleDialog extends FormDialog
 		if ($this->page->slug() !== $slug) {
 			$response['event'][] = 'page.changeSlug';
 
-			$newPage = $this->page->changeSlug($slug);
-			$oldUrl  = $this->page->panel()->url(true);
-			$newUrl  = $newPage->panel()->url(true);
+			$oldUrl     = $this->page->panel()->url(true);
+			$this->page = $this->page->changeSlug($slug);
+			$newUrl     = $this->page->panel()->url(true);
 
 			// check for a necessary redirect after the slug has changed
 			if (Panel::referrer() === $oldUrl && $oldUrl !== $newUrl) {

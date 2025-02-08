@@ -61,8 +61,8 @@ class LanguageTranslationUpdateDialog extends LanguageTranslationCreateDialog
 
 	public function submit(): true
 	{
-		$value = $this->request->get('value', '');
-		$this->variable->update($value);
+		$value          = $this->request->get('value', '');
+		$this->variable = $this->variable->update($value);
 
 		return true;
 	}

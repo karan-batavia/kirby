@@ -132,7 +132,7 @@ class LanguageVariable
 	/**
 	 * Returns the value if the variable has been translated.
 	 */
-	public function value(): string|null
+	public function value(): string|array|null
 	{
 		return $this->language->translations()[$this->key] ?? null;
 	}
