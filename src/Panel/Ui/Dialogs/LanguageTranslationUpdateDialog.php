@@ -7,6 +7,8 @@ use Kirby\Exception\NotFoundException;
 use Kirby\Toolkit\I18n;
 
 /**
+ * Dialog to update a language variable
+ *
  * @package   Kirby Panel
  * @author    Nico Hoffmann <nico@getkirby.com>
  * @link      https://getkirby.com
@@ -29,7 +31,7 @@ class LanguageTranslationUpdateDialog extends LanguageTranslationCreateDialog
 		}
 
 		parent::__construct(
-			language:     $this->variable->language(),
+			language: $this->variable->language(),
 			cancelButton: $this->isVariableArray() === false,
 			submitButton: $this->isVariableArray() === false
 		);
