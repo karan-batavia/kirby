@@ -3,6 +3,7 @@
 namespace Kirby\Cms;
 
 use Closure;
+use Kirby\Content\VersionCache;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Kirby\Filesystem\F;
@@ -83,6 +84,10 @@ trait FileActions
 
 			// rename the main file
 			F::move($oldFile->root(), $newFile->root());
+
+			// hard reset for the version cache
+			// to avoid broken/overlapping file references
+			VersionCache::$cache = [];
 
 			// move the content storage versions
 			$oldFile->storage()->moveAll(to: $newFile->storage());
